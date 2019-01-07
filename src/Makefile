@@ -46,6 +46,7 @@ ifeq ($(PLATFORM),MSP432)
 	 -mfpu=$(FPU) --specs=$(SPECS) -Wall -Werror -g -O0 -std=c99 \
 	 -D$(PLATFORM)
 	OBJDUMP = arm-none-eabi-objdump
+	SIZE = arm-none-eabi-size
 else ifeq ($(PLATFORM),HOST)
 	CC = gcc
 	LD = ld
@@ -53,6 +54,7 @@ else ifeq ($(PLATFORM),HOST)
 	LDFLAGS = -Wl,-Map=$(TARGET).map
 	CFLAGS = -Wall -Werror -g -O0 -std=c99 -D$(PLATFORM)
 	OBJDUMP = objdump
+	SIZE = size
 else
 $(warning Enter a valid platform (HOST or MSP432))
 endif
@@ -85,11 +87,12 @@ compile-all : $(OBJS)
 	$(info IF ERROR ARISES, TRY OUT "make clean" COMMAND BEFORE THIS COMMAND)
 
 .PHONY : build
-build : $(TARGET).out $(DEPS)
+build : $(DEPS) $(TARGET).out
 
 $(TARGET).out : $(OBJS)
 	$(CC) $(OBJS) $(CFLAGS) $(INCLUDES) $(LDFLAGS) -o $@
 	$(info IF ERROR ARISES, TRY OUT "make clean" COMMAND BEFORE THIS COMMAND)
+	$(SIZE) $(TARGET).out $(OBJS)
 
 
 .PHONY:clean
