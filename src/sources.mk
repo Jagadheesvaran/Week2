@@ -20,8 +20,7 @@ else ifeq ($(PLATFORM),HOST)
 	SRCS = main.c \
 	       memory.c
 else
-	echo "Enter a valid target"
-
+$(warning Enter a valid platform (HOST or MSP432))
 endif
 
 # Add your include paths to this variable
@@ -32,5 +31,5 @@ ifeq ($(PLATFORM),MSP432)
 else ifeq ($(PLATFORM),HOST)
 	INCLUDES = -I../include/common
 else
-	echo "Enter a valid target"
+$(warning Enter a valid platform (HOST or MSP432))
 endif
