@@ -10,13 +10,27 @@
 #*****************************************************************************
 
 # Add your Source files to this variable
-SRCS = interrupts_msp432p401r_gcc.c \
-       memory.c \
-       system_msp432p401r.c \
-       startup_msp432p401r_gcc.c \
-       main.c
+ifeq ($(PLATFORM),MSP432)
+	SRCS = interrupts_msp432p401r_gcc.c \
+       	       memory.c \
+               system_msp432p401r.c \
+               startup_msp432p401r_gcc.c \
+               main.c
+else ifeq ($(PLATFORM),HOST)
+	SRCS = main.c \
+	       memory.c
+else
+	echo "Enter a valid target"
+
+endif
 
 # Add your include paths to this variable
-INCLUDES = -I../include/CMSIS \
-	   -I../include/common \
-	   -I../include/msp432
+ifeq ($(PLATFORM),MSP432)
+	INCLUDES = -I../include/CMSIS \
+	  	   -I../include/common \
+	   	   -I../include/msp432
+else ifeq ($(PLATFORM),HOST)
+	INCLUDES = -I../include/common
+else
+	echo "Enter a valid target"
+endif

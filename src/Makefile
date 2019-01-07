@@ -44,18 +44,40 @@ LDFLAGS = -Wl,-Map=$(TARGET).map -T $(LINKER_FILE)
 CFLAGS = -mcpu=$(CPU) -march=$(ARCH) -mthumb -mfloat-abi=$(FLOAT_ABI) \
 	 -mfpu=$(FPU) --specs=$(SPECS) -Wall -Werror -g -O0 -std=c99 \
 	 -D$(PLATFORM)
+OBJDUMP = arm-none-eabi-objdump
 
 OBJS = $(SRCS:.c=.o)
 
 %.o : %.c
 	$(CC) -c $< $(CFLAGS) $(INCLUDES) -o $@
 
+DEPS = $(SRCS:.c=.d)
+
+%.d : %.c
+	$(CC) $< $(CFLAGS) $(INCLUDES) -MM -o $@
+
+PREPS = $(SRCS:.c=.i)
+
+%.i : %.c
+	$(CC) $< $(CFLAGS) $(INCLUDES) -E -o $@
+
+ASMS = $(SRCS:.c=.asm)
+
+executable.asm : $(TARGET).out
+	$(OBJDUMP) $< -D > $@
+
+%.asm : %.c
+	$(CC) $< $(CFLAGS) $(INCLUDES) -S -o $@
+
+.PHONY : compile-all
+compile-all : $(OBJS)
+
 .PHONY: build
-build: $(TARGET).out
+build: $(TARGET).out $(DEPS)
 
 $(TARGET).out : $(OBJS)
 	$(CC) $(OBJS) $(CFLAGS) $(INCLUDES) $(LDFLAGS) -o $@
 
 .PHONY:clean
 clean:
-	rm -f $(OBJS) executable.map executable.out
+	rm -f $(OBJS) $(DEPS) $(ASMS) $(PREPS) executable.asm executable.map executable.out
